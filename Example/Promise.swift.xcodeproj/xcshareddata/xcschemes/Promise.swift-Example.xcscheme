@@ -15,29 +15,29 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-               BuildableName = "Promise.swift_Example.app"
-               BlueprintName = "Promise.swift_Example"
+               BuildableName = "Promise_swift_Example.app"
+               BlueprintName = "Promise_swift_Example"
                ReferencedContainer = "container:Promise.swift.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
             buildForTesting = "YES"
-            buildForRunning = "YES"
+            buildForRunning = "NO"
             buildForProfiling = "NO"
             buildForArchiving = "NO"
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "Promise.swift_Tests.xctest"
-               BlueprintName = "Promise.swift_Tests"
+               BuildableName = "Promise_swift_Tests.xctest"
+               BlueprintName = "Promise_swift_Tests"
                ReferencedContainer = "container:Promise.swift.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Testing"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       language = ""
@@ -48,8 +48,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "Promise.swift_Tests.xctest"
-               BlueprintName = "Promise.swift_Tests"
+               BuildableName = "Promise_swift_Tests.xctest"
+               BlueprintName = "Promise_swift_Tests"
                ReferencedContainer = "container:Promise.swift.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -58,8 +58,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "Promise.swift_Example.app"
-            BlueprintName = "Promise.swift_Example"
+            BuildableName = "Promise_swift_Example.app"
+            BlueprintName = "Promise_swift_Example"
             ReferencedContainer = "container:Promise.swift.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -67,7 +67,7 @@
       </AdditionalOptions>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       language = ""
@@ -82,8 +82,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "Promise.swift_Example.app"
-            BlueprintName = "Promise.swift_Example"
+            BuildableName = "Promise_swift_Example.app"
+            BlueprintName = "Promise_swift_Example"
             ReferencedContainer = "container:Promise.swift.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -101,8 +101,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "Promise.swift_Example.app"
-            BlueprintName = "Promise.swift_Example"
+            BuildableName = "Promise_swift_Example.app"
+            BlueprintName = "Promise_swift_Example"
             ReferencedContainer = "container:Promise.swift.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
