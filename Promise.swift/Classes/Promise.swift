@@ -26,6 +26,8 @@ public final class DispatchPromise<Value> {
     var value: Value? { return success.result }
     var error: Error? { return fail.result }
     public var isPending: Bool { return !success.isFired && !fail.isFired }
+    public var isRejected: Bool { return success.isInvalidated && fail.isFired }
+    public var isFulfilled: Bool { return success.isFired && fail.isInvalidated }
 
     final class Commit<T>: _Commit<T> {
         var _result: T!
@@ -110,20 +112,25 @@ public final class DispatchPromise<Value> {
         override var isInvalidated: Bool { return true }
     }
 
-    public static func pending() -> DispatchPromise {
-        let success = Commit<Value>()
-        let fail = Commit<Error>()
-        success.onFire = { [weak fail] in fail?.invalidate() }
-        fail.onFire = { [weak success] in success?.invalidate() }
-        return DispatchPromise(success, fail)
-    }
-
     public typealias AsyncWork = (@escaping (Value) -> Void, @escaping (Error) -> Void) throws -> Void
     public typealias Work = () throws -> Value
 
     init(_ s: _Commit<Value>, _ f: _Commit<Error>) {
         self.success = s
         self.fail = f
+    }
+
+    public static func pendingError() -> DispatchPromise {
+        let fail = Commit<Error>()
+        return DispatchPromise(Empty(), fail)
+    }
+
+    public convenience init() {
+        let success = Commit<Value>()
+        let fail = Commit<Error>()
+        success.onFire = { [weak fail] in fail?.invalidate() }
+        fail.onFire = { [weak success] in success?.invalidate() }
+        self.init(success, fail)
     }
 
     public convenience init(_ work: @autoclosure () throws -> Value) {
@@ -187,8 +194,12 @@ public final class DispatchPromise<Value> {
         }
     }
 
-    func fulfill(_ value: Value) {
+    public func fulfill(_ value: Value) {
         success.fire(value)
+    }
+
+    public func reject(_ error: Error) {
+        fail.fire(error)
     }
 }
 
@@ -196,21 +207,27 @@ public final class DispatchPromise<Value> {
 public extension DispatchPromise {
     typealias Then<Result> = (Value) throws -> Result
 
-    func `do`(on queue: DispatchQueue = .main, _ it: @escaping (Value) -> Void) {
-        success.notify(on: queue, it)
+    @discardableResult
+    func `do`(on queue: DispatchQueue = .main, _ it: @escaping (Value) -> Void) -> DispatchPromise {
+        success.notify(on: queue, it); return self
+    }
+
+    @discardableResult
+    func resolve(on queue: DispatchQueue = .main, _ it: @escaping (Error) -> Void) -> DispatchPromise {
+        fail.notify(on: queue, it); return self
     }
 
     @discardableResult
     func then(on queue: DispatchQueue = .main, make it: @escaping Then<Void>) -> DispatchPromise {
         guard !success.isInvalidated else { return .init(error!) }
 
-        let promise = DispatchPromise.pending()
+        let promise = DispatchPromise()
         self.do(on: queue) { v in
             do {
                 try it(v)
                 promise.fulfill(v)
             } catch let error {
-                promise.fail.fire(error)
+                promise.reject(error)
             }
         }
         `catch`(on: queue, make: promise.fail.fire)
@@ -221,13 +238,13 @@ public extension DispatchPromise {
     public func then<Result>(on queue: DispatchQueue = .main, make it: @escaping Then<Result>) -> DispatchPromise<Result> {
         guard !success.isInvalidated else { return .init(error!) }
 
-        let promise = DispatchPromise<Result>.pending()
+        let promise = DispatchPromise<Result>()
         self.do(on: queue) { v in
             do {
                 let value = try it(v)
-                promise.success.fire(value)
+                promise.fulfill(value)
             } catch let error {
-                promise.fail.fire(error)
+                promise.reject(error)
             }
         }
         `catch`(on: queue, make: promise.fail.fire)
@@ -238,21 +255,59 @@ public extension DispatchPromise {
     public func then<Result>(on queue: DispatchQueue = .main, make it: @escaping Then<DispatchPromise<Result>>) -> DispatchPromise<Result> {
         guard !success.isInvalidated else { return .init(error!) }
 
-        let promise = DispatchPromise<Result>.pending()
+        let promise = DispatchPromise<Result>()
         self.do(on: queue) { v in
             do {
                 let p = try it(v)
-                p.do(on: queue) { promise.success.fire($0) }
+                p.do(on: queue) { promise.fulfill($0) }
                 p.catch(on: queue, make: promise.fail.fire)
             } catch let e {
-                promise.fail.fire(e)
+                promise.reject(e)
             }
         }
         `catch`(on: queue, make: promise.fail.fire)
         return promise
     }
 
-    func `catch`(on queue: DispatchQueue = .main, make it: @escaping (Error) -> Void) {
-        fail.notify(on: queue, it)
+    @discardableResult
+    func `catch`(on queue: DispatchQueue = .main, make it: @escaping (Error) -> Void) -> DispatchPromise {
+        let promise = DispatchPromise.pendingError()
+        resolve(on: queue, { it($0); promise.reject($0); })
+        return promise
+    }
+}
+
+extension DispatchPromise {
+    public static func all<Value>(
+        on queue: DispatchQueue = .main,
+        _ promises: DispatchPromise<Value>...
+        ) -> DispatchPromise<[Value]> {
+        return all(on: queue, promises)
+    }
+    
+    public static func all<Value, Container: Sequence>(
+        on queue: DispatchQueue = .main,
+        _ promises: Container
+        ) -> DispatchPromise<[Value]> where Container.Iterator.Element == DispatchPromise<Value> {
+        let group = DispatchGroup()
+        let promise = DispatchPromise<[Value]>()
+
+        promises.forEach { (p) in
+            group.enter()
+            p.do(on: queue) { _ in
+                group.leave()
+            }.resolve(on: queue) {
+                promise.reject($0);
+                group.leave();
+            }
+        }
+
+        group.notify(queue: queue) {
+            if promise.isPending {
+                promise.fulfill(promises.map { $0.value! })
+            }
+        }
+
+        return promise
     }
 }

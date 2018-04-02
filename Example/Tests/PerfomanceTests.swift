@@ -331,7 +331,7 @@ extension PerfomanceTests {
         var promises = [DispatchPromise<Bool>]()
         for _ in 0..<Constants.iterationCount {
             group.enter()
-            let promise = DispatchPromise<Bool>.pending()
+            let promise = DispatchPromise<Bool>()
             promise.then(on: queue) { _ in
                 group.leave()
             }
