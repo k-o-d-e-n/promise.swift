@@ -58,6 +58,7 @@ public final class DispatchPromise<Value> {
 
             self.state = .fired
             self._result = value
+            onFire?()
             notifier.leave()
         }
 
@@ -77,9 +78,9 @@ public final class DispatchPromise<Value> {
         }
 
         deinit {
-            if state == .fired {
-                onFire?()
-            }
+//            if state == .fired {
+//                onFire?()
+//            }
         }
     }
     final class Resolved<T>: _Commit<T> {
@@ -219,7 +220,9 @@ public extension DispatchPromise {
 
     @discardableResult
     func then(on queue: DispatchQueue = .main, make it: @escaping Then<Void>) -> DispatchPromise {
-        guard !success.isInvalidated else { return .init(error!) }
+        guard !success.isInvalidated else {
+            return error.map(DispatchPromise.init) ?? .init(success, fail)
+        }
 
         let promise = DispatchPromise()
         self.do(on: queue) { v in
@@ -230,13 +233,15 @@ public extension DispatchPromise {
                 promise.reject(error)
             }
         }
-        `catch`(on: queue, make: promise.fail.fire)
+        self.resolve(on: queue, promise.fail.fire)
         return promise
     }
 
     @discardableResult
     public func then<Result>(on queue: DispatchQueue = .main, make it: @escaping Then<Result>) -> DispatchPromise<Result> {
-        guard !success.isInvalidated else { return .init(error!) }
+        guard !success.isInvalidated else {
+            return error.map { .init($0) } ?? .init(Empty(), fail)
+        }
 
         let promise = DispatchPromise<Result>()
         self.do(on: queue) { v in
@@ -247,13 +252,15 @@ public extension DispatchPromise {
                 promise.reject(error)
             }
         }
-        `catch`(on: queue, make: promise.fail.fire)
+        self.resolve(on: queue, promise.fail.fire)
         return promise
     }
 
     @discardableResult
     public func then<Result>(on queue: DispatchQueue = .main, make it: @escaping Then<DispatchPromise<Result>>) -> DispatchPromise<Result> {
-        guard !success.isInvalidated else { return .init(error!) }
+        guard !success.isInvalidated else {
+            return error.map { .init($0) } ?? .init(Empty(), fail)
+        }
 
         let promise = DispatchPromise<Result>()
         self.do(on: queue) { v in
@@ -265,14 +272,15 @@ public extension DispatchPromise {
                 promise.reject(e)
             }
         }
-        `catch`(on: queue, make: promise.fail.fire)
+        self.resolve(on: queue, promise.fail.fire)
         return promise
     }
 
     @discardableResult
     func `catch`(on queue: DispatchQueue = .main, make it: @escaping (Error) -> Void) -> DispatchPromise {
-        let promise = DispatchPromise.pendingError()
-        resolve(on: queue, { it($0); promise.reject($0); })
+        let promise = DispatchPromise()
+        self.do(on: queue, promise.fulfill)
+        self.resolve(on: queue, { it($0); promise.reject($0); })
         return promise
     }
 }
@@ -289,25 +297,27 @@ extension DispatchPromise {
         on queue: DispatchQueue = .main,
         _ promises: Container
         ) -> DispatchPromise<[Value]> where Container.Iterator.Element == DispatchPromise<Value> {
-        let group = DispatchGroup()
-        let promise = DispatchPromise<[Value]>()
 
-        promises.forEach { (p) in
-            group.enter()
-            p.do(on: queue) { _ in
-                group.leave()
-            }.resolve(on: queue) {
-                promise.reject($0);
-                group.leave();
+        var promise: DispatchPromise<[Value]>?
+        promise = DispatchPromise<[Value]>.init { (fulfill, reject) in
+            let group = DispatchGroup()
+            promises.forEach { (p) in
+                group.enter()
+                p.do(on: queue) { _ in
+                    group.leave()
+                }.resolve(on: queue) {
+                    reject($0);
+                    group.leave();
+                }
+            }
+
+            group.notify(queue: queue) {
+                if promise?.isPending ?? false {
+                    fulfill(promises.map { $0.value! })
+                }
             }
         }
 
-        group.notify(queue: queue) {
-            if promise.isPending {
-                promise.fulfill(promises.map { $0.value! })
-            }
-        }
-
-        return promise
+        return promise!
     }
 }

@@ -560,7 +560,9 @@ class PromiseAllTests: XCTestCase {
 
         promise.fulfill(42)
         promise.then { (_) in
-            exp.fulfill()
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: {
+                exp.fulfill()
+            })
         }
 
         waitForExpectations(timeout: 10) { (err) in
@@ -749,3 +751,342 @@ class PromiseAllTests: XCTestCase {
 //        XCTAssertNil(weakExtendedPromise2)
 //    }
 }
+
+class PromiseCatchTests: XCTestCase {
+//    func testPromiseDoesNotCallThenAfterReject() {
+//        let exp = expectation(description: "")
+//        // Act.
+//        let promise = DispatchPromise<AnyObject> {
+//            return Test.Error.code42 as AnyObject
+//            }.then { _ in
+//                XCTFail()
+//            }.then {
+//                XCTFail()
+//            }.then {
+//                XCTFail()
+//            }.catch { error in
+//                XCTAssertTrue((error as? Test.Error) == Test.Error.code42)
+//                exp.fulfill()
+//        }
+//
+//        // Assert.
+//        waitForExpectations(timeout: 10) { (err) in
+//            XCTAssertNil(err)
+//            XCTAssertTrue((promise.error as? Test.Error) == Test.Error.code42)
+//            XCTAssertTrue(promise.value == nil)
+//        }
+//    }
+
+    func testPromiseDoesNotCallThenAfterAsyncReject() {
+        let exp = expectation(description: "")
+        // Act.
+        let promise = DispatchPromise { _, reject in
+            Test.delay(0.1) {
+                reject(Test.Error.code42)
+            }
+            }.then {
+                XCTFail()
+            }.then {
+                XCTFail()
+            }.then {
+                XCTFail()
+            }.catch { error in
+                XCTAssertTrue((error as? Test.Error) == Test.Error.code42)
+                exp.fulfill()
+        }
+
+        // Assert.
+        waitForExpectations(timeout: 10) { (err) in
+            XCTAssertNil(err)
+            XCTAssertTrue((promise.error as? Test.Error) == Test.Error.code42)
+            XCTAssertNil(promise.value)
+        }
+    }
+
+//    func testPromiseCallsSubsequentCatchAfterReject() {
+//        let exp = expectation(description: "")
+//        // Arrange.
+//        var count = 0
+//
+//        // Act.
+//        let promise = DispatchPromise<AnyObject> {
+//            return Test.Error.code42 as AnyObject
+//            }.then { _ in
+//                XCTFail()
+//            }.catch { error in
+//                XCTAssertEqual((error as? Test.Error)?.rawValue, 42)
+//                count += 1
+//            }.catch { error in
+//                XCTAssertEqual((error as? Test.Error)?.rawValue, 42)
+//                count += 1
+//            }.catch { error in
+//                XCTAssertEqual((error as? Test.Error)?.rawValue, 42)
+//                count += 1
+//                exp.fulfill()
+//        }
+//
+//        // Assert.
+//        waitForExpectations(timeout: 10) { (err) in
+//            XCTAssertNil(err)
+//            XCTAssertEqual(count, 3)
+//            XCTAssertTrue((promise.error as? Test.Error) == Test.Error.code42)
+//            XCTAssertTrue(promise.value == nil)
+//        }
+//    }
+
+    func testPromiseCallsSubsequentCatchAfterAsyncReject() {
+        let exp = expectation(description: "")
+        // Arrange.
+        var count = 0
+
+        // Act.
+        let promise = DispatchPromise { _, reject in
+            Test.delay(0.1) {
+                reject(Test.Error.code42)
+            }
+            }.then {
+                XCTFail()
+            }.catch { error in
+                XCTAssertEqual((error as? Test.Error)?.rawValue, 42)
+                count += 1
+            }.catch { error in
+                XCTAssertEqual((error as? Test.Error)?.rawValue, 42)
+                count += 1
+            }.catch { error in
+                XCTAssertEqual((error as? Test.Error)?.rawValue, 42)
+                count += 1
+                exp.fulfill()
+        }
+
+        // Assert.
+        waitForExpectations(timeout: 10) { (err) in
+            XCTAssertNil(err)
+            XCTAssertEqual(count, 3)
+            XCTAssertTrue((promise.error as? Test.Error) == Test.Error.code42)
+            XCTAssertNil(promise.value)
+        }
+    }
+
+    func testPromiseCatchesThrownError() {
+        let exp = expectation(description: "")
+        // Act.
+        let promise = DispatchPromise<AnyObject> {
+            throw Test.Error.code42
+            }.then { _ in
+                XCTFail()
+            }.then {
+                XCTFail()
+            }.then {
+                XCTFail()
+            }.catch { error in
+                XCTAssertTrue((error as? Test.Error) == Test.Error.code42)
+                exp.fulfill()
+        }
+
+        // Assert.
+        waitForExpectations(timeout: 10) { (err) in
+            XCTAssertNil(err)
+            XCTAssertTrue((promise.error as? Test.Error) == Test.Error.code42)
+        }
+    }
+
+    func testPromiseCatchesThrownErrorFromAsync() {
+        let exp = expectation(description: "")
+        // Act.
+        let promise = DispatchPromise { _, _ in
+            throw Test.Error.code42
+            }.then {
+                XCTFail()
+            }.then {
+                XCTFail()
+            }.then {
+                XCTFail()
+            }.catch { error in
+                XCTAssertTrue((error as? Test.Error) == Test.Error.code42)
+                exp.fulfill()
+        }
+
+        // Assert.
+        waitForExpectations(timeout: 10) { (err) in
+            XCTAssertNil(err)
+            XCTAssertTrue((promise.error as? Test.Error) == Test.Error.code42)
+        }
+    }
+
+    func testPromiseNoCatchOnPending() {
+        // Arrange.
+        let expectation = self.expectation(description: "")
+
+        // Act.
+        let promise = DispatchPromise<Void>()
+
+        let thenPromise = promise.catch { _ in
+            XCTFail()
+        }
+        Test.delay(0.1) {
+            expectation.fulfill()
+        }
+
+        // Assert.
+        waitForExpectations(timeout: 10)
+        XCTAssert(promise.isPending)
+        XCTAssertNil(promise.value)
+        XCTAssertNil(promise.error)
+        XCTAssert(thenPromise.isPending)
+        XCTAssertNil(thenPromise.value)
+        XCTAssertNil(thenPromise.error)
+    }
+
+    func testPromiseNoRejectAfterFulfill() {
+        let exp = expectation(description: "")
+        // Act.
+        let promise = DispatchPromise { fulfill, reject in
+            let error = Test.Error.code42
+            fulfill(42)
+            reject(error)
+            throw error
+            }.then { value in
+                XCTAssertEqual(value, 42)
+            }.catch { _ in
+                XCTFail()
+            }.then { value in
+                XCTAssertEqual(value, 42)
+                exp.fulfill()
+        }
+
+        // Assert.
+        waitForExpectations(timeout: 10) { (err) in
+            XCTAssertNil(err)
+            XCTAssertEqual(promise.value, 42)
+            XCTAssertNil(promise.error)
+        }
+    }
+
+    func testPromiseNoFulfillAfterReject() {
+        let exp = expectation(description: "")
+        // Act.
+        let promise = DispatchPromise<Int> { fulfill, reject in
+            let error = Test.Error.code42
+            reject(error)
+            fulfill(42)
+            throw error
+            }.then { _ in
+                XCTFail()
+            }.catch { error in
+                XCTAssertTrue((error as? Test.Error) == Test.Error.code42)
+            }.then {
+                XCTFail()
+            }.catch { error in
+                XCTAssertTrue((error as? Test.Error) == Test.Error.code42)
+                exp.fulfill()
+        }
+
+        // Assert.
+        waitForExpectations(timeout: 10) { (err) in
+            XCTAssertNil(err)
+            XCTAssertTrue((promise.error as? Test.Error) == Test.Error.code42)
+            XCTAssertNil(promise.value)
+        }
+    }
+
+    func testPromiseNoDoubleReject() {
+        let exp = expectation(description: "")
+        // Act.
+        let promise = DispatchPromise<Void> { _, reject in
+            Test.delay(0.1) {
+                reject(Test.Error.code42)
+                reject(Test.Error.code13)
+            }
+            }.catch { error in
+                XCTAssertTrue((error as? Test.Error) == Test.Error.code42)
+            }.catch { error in
+                XCTAssertTrue((error as? Test.Error) == Test.Error.code42)
+                exp.fulfill()
+        }
+
+        // Assert.
+        waitForExpectations(timeout: 10) { (err) in
+            XCTAssertNil(err)
+            XCTAssertTrue((promise.error as? Test.Error) == Test.Error.code42)
+            XCTAssertNil(promise.value)
+        }
+    }
+
+//    func testPromiseThenReturnError() {
+//        let exp = expectation(description: "")
+//        // Act.
+//        let promise = DispatchPromise {
+//            return 42
+//            }.then { _ in
+//                return Test.Error.code42
+//            }.then { _ in
+//                XCTFail()
+//            }.then { _ in
+//                XCTFail()
+//            }.catch { error in
+//                XCTAssertTrue((error as? Test.Error) == Test.Error.code42)
+//                exp.fulfill()
+//        }
+//
+//        // Assert.
+//        waitForExpectations(timeout: 10) { (err) in
+//            XCTAssertNil(err)
+//            XCTAssertTrue((promise.error as? Test.Error) == Test.Error.code42)
+//            XCTAssertNil(promise.value)
+//        }
+//    }
+
+    func testPromiseCatchInitiallyRejected() {
+        let exp = expectation(description: "")
+        // Act.
+        let initiallyRejectedPromise = DispatchPromise<Void>(Test.Error.code42)
+        let promise = initiallyRejectedPromise.then { _ in
+            XCTFail()
+            }.catch { error in
+                XCTAssertTrue((error as? Test.Error) == Test.Error.code42)
+                exp.fulfill()
+        }
+
+        // Assert.
+        waitForExpectations(timeout: 10) { (err) in
+            XCTAssertNil(err)
+            XCTAssertTrue((initiallyRejectedPromise.error as? Test.Error) == Test.Error.code42)
+            XCTAssertNil(initiallyRejectedPromise.value)
+            XCTAssertTrue((promise.error as? Test.Error) == Test.Error.code42)
+            XCTAssertNil(promise.value)
+        }
+    }
+
+    func testPromiseCatchNoDeallocUntilRejected() {
+        let exp = expectation(description: "")
+        // Arrange.
+        let promise = DispatchPromise<Int>()
+        weak var weakExtendedPromise1: DispatchPromise<Int>?
+        weak var weakExtendedPromise2: DispatchPromise<Int>?
+
+        // Act.
+        autoreleasepool {
+            XCTAssertNil(weakExtendedPromise1)
+            XCTAssertNil(weakExtendedPromise2)
+            weakExtendedPromise1 = promise.catch { _ in }
+            weakExtendedPromise2 = promise.catch { _ in }
+            XCTAssertNotNil(weakExtendedPromise1)
+            XCTAssertNotNil(weakExtendedPromise2)
+        }
+        // Assert.
+        XCTAssertNotNil(weakExtendedPromise1)
+        XCTAssertNotNil(weakExtendedPromise2)
+
+        promise.reject(Test.Error.code42)
+        promise.catch { (_) in
+            exp.fulfill()
+        }
+        waitForExpectations(timeout: 10) { (err) in
+            XCTAssertNil(err)
+
+            XCTAssertNil(weakExtendedPromise1)
+            XCTAssertNil(weakExtendedPromise2)
+        }
+    }
+}
+
