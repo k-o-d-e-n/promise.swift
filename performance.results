@@ -1,0 +1,156 @@
+
+/// - iOS Simulator
+
+/// Serial queue
+
+testDispatchAsyncOnSerialQueue = 		Average time: 0.0000101170
+testDispatchAsyncOnSerialQueue = 		Average time: 0.0000120410
+
+testPromisesThenOnSerialQueue =  		Average time: 0.0000182100
+testPromisesThenOnSerialQueue = 		Average time: 0.0000203610
+
+testThenOnSerialQueue = 				Average time: 0.0000232350
+testThenOnSerialQueue = 				Average time: 0.0000231080
+
+
+/// Double serial queue
+
+testDoubleDispatchAsyncOnSerialQueue = 	Average time: 0.0000105630
+testDoubleDispatchAsyncOnSerialQueue = 	Average time: 0.0000133810
+
+testDoublePromisesThenOnSerialQueue =  	Average time: 0.0000235040
+testDoublePromisesThenOnSerialQueue = 	Average time: 0.0000225570
+
+testDoubleThenOnSerialQueue = 			Average time: 0.0000265160
+testDoubleThenOnSerialQueue = 			Average time: 0.0000238380
+
+/// Triple serial queue
+
+testTripleDispatchAsyncOnSerialQueue = 	Average time: 0.0000138940
+testTripleDispatchAsyncOnSerialQueue = 	Average time: 0.0000144660
+
+testTriplePromisesThenOnSerialQueue = 	Average time: 0.0000276310
+testTriplePromisesThenOnSerialQueue = 	Average time: 0.0000267990
+
+testTripleThenOnSerialQueue =			Average time: 0.0000328300
+testTripleThenOnSerialQueue = 			Average time: 0.0000296050
+
+/// Concurrent queue
+
+testDispatchAsyncOnConcurrentQueue = 	Total time: 0.0105350018
+testDispatchAsyncOnConcurrentQueue = 	Total time: 0.0143929720
+
+testPromisesThenOnConcurrentQueue = 	Total time: 0.0327379704
+testPromisesThenOnConcurrentQueue = 	Total time: 0.0362559557
+
+testThenOnConcurrentQueue = 			Total time: 0.0174889565
+testThenOnConcurrentQueue = 			Total time: 0.0165910721
+
+
+/// - iPhone 5s
+
+testDispatchAsyncOnSerialQueue() = 			Average time: 0.0000524860
+testPromisesThenOnSerialQueue() = 			Average time: 0.0000736810
+testThenOnSerialQueue() = 					Average time: 0.0000887490
+
+testDoubleDispatchAsyncOnSerialQueue() = 	Average time: 0.0000490410
+testDoublePromisesThenOnSerialQueue() = 	Average time: 0.0001088510
+testDoubleThenOnSerialQueue() = 			Average time: 0.0001102660
+
+testTripleDispatchAsyncOnSerialQueue() = 	Average time: 0.0000477270
+testTriplePromisesThenOnSerialQueue() = 	Average time: 0.0001253600
+testTripleThenOnSerialQueue() = 			Average time: 0.0001260400
+
+testDispatchAsyncOnConcurrentQueue() = 		Total time: 0.0622129440
+testPromisesThenOnConcurrentQueue() = 		Total time: 0.1176450253
+testThenOnConcurrentQueue() = 				Total time: 0.1547380686
+
+// ----
+
+testDispatchAsyncOnSerialQueue() = 			Average time: 0.0000456640
+testPromisesThenOnSerialQueue() = 			Average time: 0.0000839350
+testThenOnSerialQueue() = 					Average time: 0.0000723980
+
+testDoubleDispatchAsyncOnSerialQueue() = 	Average time: 0.0000549190
+testDoublePromisesThenOnSerialQueue() = 	Average time: 0.0001134790
+testDoubleThenOnSerialQueue() = 			Average time: 0.0000987010
+
+testTripleDispatchAsyncOnSerialQueue() = 	Average time: 0.0000526320
+testTriplePromisesThenOnSerialQueue() = 	Average time: 0.0001302670
+testTripleThenOnSerialQueue() = 			Average time: 0.0001254270
+
+testDispatchAsyncOnConcurrentQueue() = 		Total time: 0.0280190706
+testPromisesThenOnConcurrentQueue() = 		Total time: 0.1132719517
+testThenOnConcurrentQueue() = 				Total time: 0.1478650570
+
+// ------
+
+testDispatchAsyncOnSerialQueue() = 			Average time: 0.0000807870
+testPromisesThenOnSerialQueue() = 			Average time: 0.0001267460
+testThenOnSerialQueue() = 					Average time: 0.0001273650
+
+testDoubleDispatchAsyncOnSerialQueue() = 	Average time: 0.0000866920
+testDoublePromisesThenOnSerialQueue() = 	Average time: 0.0001779850
+testDoubleThenOnSerialQueue() = 			Average time: 0.0001541300
+
+testTripleDispatchAsyncOnSerialQueue() = 	Average time: 0.0000954220
+testTriplePromisesThenOnSerialQueue() = 	Average time: 0.0002188120
+testTripleThenOnSerialQueue() = 			Average time: 0.0001833150
+
+testDispatchAsyncOnConcurrentQueue() = 		Total time: 0.0642329454
+testPromisesThenOnConcurrentQueue() = 		Total time: 0.1855590343
+testThenOnConcurrentQueue() = 				Total time: 0.1181970835
+
+// ----
+
+testDispatchAsyncOnSerialQueue() = 			Average time: 0.0000434350
+testPromisesThenOnSerialQueue() = 			Average time: 0.0001359860
+testThenOnSerialQueue() = 					Average time: 0.0001187240
+
+testDoubleDispatchAsyncOnSerialQueue() = 	Average time: 0.0000582430
+testDoublePromisesThenOnSerialQueue() = 	Average time: 0.0001888180
+testDoubleThenOnSerialQueue() = 			Average time: 0.0001900680
+
+testTripleDispatchAsyncOnSerialQueue() = 	Average time: 0.0000770290
+testTriplePromisesThenOnSerialQueue() = 	Average time: 0.0001834620
+testTripleThenOnSerialQueue() = 			Average time: 0.0001609960
+
+testDispatchAsyncOnConcurrentQueue() = 		Total time: 0.0470989943
+testPromisesThenOnConcurrentQueue() = 		Total time: 0.2260340452
+testThenOnConcurrentQueue() = 				Total time: 0.1666460037
+
+// ----
+
+testDispatchAsyncOnSerialQueue() = 			Average time: 0.0000840670
+testPromisesThenOnSerialQueue() = 			Average time: 0.0001301530
+testThenOnSerialQueue() = 					Average time: 0.0001360630
+
+testDoubleDispatchAsyncOnSerialQueue() = 	Average time: 0.0000946890
+testDoublePromisesThenOnSerialQueue() = 	Average time: 0.0001891250
+testDoubleThenOnSerialQueue() = 			Average time: 0.0001481670
+
+testTripleDispatchAsyncOnSerialQueue() = 	Average time: 0.0000915520
+testTriplePromisesThenOnSerialQueue() = 	Average time: 0.0002121650
+testTripleThenOnSerialQueue() = 			Average time: 0.0001761350
+
+testDispatchAsyncOnConcurrentQueue() = 		Total time: 0.0876950026
+testPromisesThenOnConcurrentQueue() = 		Total time: 0.1681709290
+testThenOnConcurrentQueue() = 				Total time: 0.0995460749
+
+// ----
+
+testDispatchAsyncOnSerialQueue() = 			Average time: 0.0000521220
+testPromisesThenOnSerialQueue() = 			Average time: 0.0000797190
+testThenOnSerialQueue() = 					Average time: 0.0000729510
+
+testDoubleDispatchAsyncOnSerialQueue() = 	Average time: 0.0000506050
+testDoublePromisesThenOnSerialQueue() = 	Average time: 0.0001047560
+testDoubleThenOnSerialQueue() = 			Average time: 0.0000788640
+
+testTripleDispatchAsyncOnSerialQueue() = 	Average time: 0.0000540070
+testTriplePromisesThenOnSerialQueue() = 	Average time: 0.0001215540
+testTripleThenOnSerialQueue() = 			Average time: 0.0001001910
+
+testDispatchAsyncOnConcurrentQueue() = 		Total time: 0.0230579376
+testPromisesThenOnConcurrentQueue() = 		Total time: 0.0819469690
+testThenOnConcurrentQueue() = 				Total time: 0.0475559235
