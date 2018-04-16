@@ -219,6 +219,13 @@ public extension DispatchPromise {
     }
 
     @discardableResult
+    func always(on queue: DispatchQueue = .main, _ doit: @escaping () -> Void) -> DispatchPromise {
+        success.notify(on: queue, { _ in doit() })
+        fail.notify(on: queue, { _ in doit() })
+        return self
+    }
+
+    @discardableResult
     func then(on queue: DispatchQueue = .main, make it: @escaping Then<Void>) -> DispatchPromise {
         guard !success.isInvalidated else {
             return error.map(DispatchPromise.init) ?? .init(success, fail)
