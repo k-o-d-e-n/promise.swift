@@ -63,6 +63,8 @@ public final class DispatchPromise<Value> {
         }
 
         override func notify(on queue: DispatchQueue, _ it: @escaping (T) -> Void) {
+            guard state != .invalidated else { return }
+
             notifier.notify(queue: queue, execute: {
                 if self.state == .fired {
                     it(self.result!)
@@ -310,12 +312,7 @@ extension DispatchPromise {
             let group = DispatchGroup()
             promises.forEach { (p) in
                 group.enter()
-                p.do(on: queue) { _ in
-                    group.leave()
-                }.resolve(on: queue) {
-                    reject($0);
-                    group.leave();
-                }
+                p.resolve(on: queue, reject).always(on: queue, group.leave)
             }
 
             group.notify(queue: queue) {
@@ -326,5 +323,56 @@ extension DispatchPromise {
         }
 
         return promise!
+    }
+
+    public static func tuple<V1, V2>(
+        on queue: DispatchQueue = .main,
+        _ first: DispatchPromise<V1>, _ second: DispatchPromise<V2>
+        ) -> DispatchPromise<(V1, V2)> {
+
+        var promise: DispatchPromise<(V1, V2)>?
+        promise = DispatchPromise<(V1, V2)>.init { (fulfill, reject) in
+            let group = DispatchGroup()
+            group.enter(); group.enter()
+            first.resolve(on: queue, reject).always(on: queue, group.leave)
+            second.resolve(on: queue, reject).always(on: queue, group.leave)
+
+            group.notify(queue: queue) {
+                if promise?.isPending ?? false {
+                    fulfill((first.value!, second.value!))
+                }
+            }
+        }
+
+        return promise!
+    }
+
+    public static func tuple<V1, V2, V3>(
+        on queue: DispatchQueue = .main,
+        _ first: DispatchPromise<V1>, _ second: DispatchPromise<V2>, _ third: DispatchPromise<V3>
+        ) -> DispatchPromise<(V1, V2, V3)> {
+
+        var promise: DispatchPromise<(V1, V2, V3)>?
+        promise = DispatchPromise<(V1, V2, V3)>.init { (fulfill, reject) in
+            let group = DispatchGroup()
+            group.enter(); group.enter(); group.enter()
+            first.resolve(on: queue, reject).always(on: queue, group.leave)
+            second.resolve(on: queue, reject).always(on: queue, group.leave)
+            third.resolve(on: queue, reject).always(on: queue, group.leave)
+
+            group.notify(queue: queue) {
+                if promise?.isPending ?? false {
+                    fulfill((first.value!, second.value!, third.value!))
+                }
+            }
+        }
+
+        return promise!
+    }
+}
+
+extension DispatchPromise: ExpressibleByNilLiteral where Value: ExpressibleByNilLiteral {
+    public convenience init(nilLiteral: ()) {
+        self.init(nil)
     }
 }
