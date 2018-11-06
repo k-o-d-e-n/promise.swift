@@ -8,15 +8,16 @@
 import Foundation
 
 public extension URLSession {
-    func response(by url: URL) -> DispatchPromise<Data?> {
-        let promise = DispatchPromise<Data?>()
-        dataTask(with: url) { (data, response, err) in
+    func response(by url: URL) -> (promise: DispatchPromise<(data: Data?, response: HTTPURLResponse?)>, task: URLSessionDataTask) {
+        let promise = DispatchPromise<(data: Data?, response: HTTPURLResponse?)>()
+        let task = dataTask(with: url) { (data, response, err) in
             if let e = err {
                 promise.reject(e)
             } else {
-                promise.fulfill(data)
+                promise.fulfill((data, response as? HTTPURLResponse))
             }
-        }.resume()
-        return promise
+        }
+        task.resume()
+        return (promise, task)
     }
 }
