@@ -20,4 +20,16 @@ public extension URLSession {
         task.resume()
         return (promise, task)
     }
+    func response(for request: URLRequest) -> (promise: DispatchPromise<(data: Data?, response: HTTPURLResponse?)>, task: URLSessionDataTask) {
+        let promise = DispatchPromise<(data: Data?, response: HTTPURLResponse?)>()
+        let task = dataTask(with: request) { (data, response, err) in
+            if let e = err {
+                promise.reject(e)
+            } else {
+                promise.fulfill((data, response as? HTTPURLResponse))
+            }
+        }
+        task.resume()
+        return (promise, task)
+    }
 }
