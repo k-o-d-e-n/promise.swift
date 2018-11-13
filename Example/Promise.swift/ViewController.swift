@@ -15,9 +15,9 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let ip = URLSession.shared.response(by: URL(string: "http://httpbin.org/ip")!)
-        let agent = URLSession.shared.response(by: URL(string: "http://httpbin.org/user-agent")!)
-        let get = URLSession.shared.response(by: URL(string: "http://httpbin.org/get")!)
+        let ip = URLSession.shared.response(by: URL(string: "http://httpbin.org/ip")!).promise
+        let agent = URLSession.shared.response(by: URL(string: "http://httpbin.org/user-agent")!).promise
+        let get = URLSession.shared.response(by: URL(string: "http://httpbin.org/get")!).promise
 
         DispatchPromise<[Data?]>.all(ip, agent, get)
             .do { _ in
@@ -26,13 +26,12 @@ class ViewController: UIViewController {
             }
             .then { (datas) -> String in
                 return datas.reduce(into: "", { (res, d) in
-                    let part = d.flatMap { String(data: $0, encoding: .utf8) } ?? ""
+                    let part = d.data.flatMap { String(data: $0, encoding: .utf8) } ?? ""
                     res.append(part)
                 })
             }
             .then { self.label.text = $0 }
             .catch { e in print(e) }
     }
-
 }
 
