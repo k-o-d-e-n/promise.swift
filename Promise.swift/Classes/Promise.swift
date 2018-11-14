@@ -123,11 +123,14 @@ public final class DispatchPromise<Value> {
         self.fail = f
     }
 
-    public static func pendingError() -> DispatchPromise {
-        let fail = Commit<Error>()
-        return DispatchPromise(Empty(), fail)
+    /// Promise that does nothing. Use it when need stop the execution.
+    ///
+    /// - Returns: Promise object
+    public static func stop() -> DispatchPromise {
+        return DispatchPromise(Empty(), Empty())
     }
 
+    /// Returns pending promise
     public convenience init() {
         let success = Commit<Value>()
         let fail = Commit<Error>()
@@ -249,7 +252,7 @@ public extension DispatchPromise {
     @discardableResult
     public func then<Result>(on queue: DispatchQueue = .main, make it: @escaping Then<Result>) -> DispatchPromise<Result> {
         guard !success.isInvalidated else {
-            return error.map { .init($0) } ?? .init(Empty(), fail)
+            return error.map(DispatchPromise<Result>.init) ?? .init(Empty(), fail)
         }
 
         let promise = DispatchPromise<Result>()
@@ -268,7 +271,7 @@ public extension DispatchPromise {
     @discardableResult
     public func then<Result>(on queue: DispatchQueue = .main, make it: @escaping Then<DispatchPromise<Result>>) -> DispatchPromise<Result> {
         guard !success.isInvalidated else {
-            return error.map { .init($0) } ?? .init(Empty(), fail)
+            return error.map(DispatchPromise<Result>.init) ?? .init(Empty(), fail)
         }
 
         let promise = DispatchPromise<Result>()
@@ -290,6 +293,34 @@ public extension DispatchPromise {
         let promise = DispatchPromise()
         self.do(on: queue, promise.fulfill)
         self.resolve(on: queue, { it($0); promise.reject($0); })
+        return promise
+    }
+
+    @discardableResult
+    func `catch`<Resolved>(on queue: DispatchQueue = .main, make it: @escaping (Error) throws -> Resolved) -> DispatchPromise<Resolved> {
+        let promise = DispatchPromise<Resolved>()
+        self.resolve(on: queue, {
+            do {
+                promise.fulfill(try it($0))
+            } catch let e {
+                promise.reject(e)
+            }
+        })
+        return promise
+    }
+
+    @discardableResult
+    func `catch`<Resolved>(on queue: DispatchQueue = .main, make it: @escaping (Error) throws -> DispatchPromise<Resolved>) -> DispatchPromise<Resolved> {
+        let promise = DispatchPromise<Resolved>()
+        self.resolve(on: queue) { e in
+            do {
+                let p = try it(e)
+                p.do(on: queue) { promise.fulfill($0) }
+                p.catch(on: queue, make: promise.fail.fire)
+            } catch let e {
+                promise.reject(e)
+            }
+        }
         return promise
     }
 }
@@ -325,7 +356,7 @@ extension DispatchPromise {
         return promise!
     }
 
-    public static func tuple<V1, V2>(
+    public class func tuple<V1, V2>(
         on queue: DispatchQueue = .main,
         _ first: DispatchPromise<V1>, _ second: DispatchPromise<V2>
         ) -> DispatchPromise<(V1, V2)> {
@@ -347,7 +378,7 @@ extension DispatchPromise {
         return promise!
     }
 
-    public static func tuple<V1, V2, V3>(
+    public class func tuple<V1, V2, V3>(
         on queue: DispatchQueue = .main,
         _ first: DispatchPromise<V1>, _ second: DispatchPromise<V2>, _ third: DispatchPromise<V3>
         ) -> DispatchPromise<(V1, V2, V3)> {
