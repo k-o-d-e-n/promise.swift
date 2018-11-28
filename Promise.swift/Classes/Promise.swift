@@ -7,6 +7,14 @@
 
 import Foundation
 
+extension DispatchGroup {
+    static func single() -> DispatchGroup {
+        let g = DispatchGroup()
+        g.enter()
+        return g
+    }
+}
+
 class _Commit<T> {
     var result: T? { return nil }
     var isFired: Bool { return true }
@@ -31,7 +39,7 @@ public final class DispatchPromise<Value> {
 
     final class Commit<T>: _Commit<T> {
         var _result: T!
-        let notifier: DispatchGroup
+        var notifier: DispatchGroup
         var state: State = .pending
         var onFire: (() -> Void)?
 
@@ -44,9 +52,7 @@ public final class DispatchPromise<Value> {
         override var isFired: Bool { return state == .fired }
 
         override init() {
-            let notifier = DispatchGroup()
-            notifier.enter()
-            self.notifier = notifier
+            self.notifier = .single()
             super.init()
             #if TESTING
             self.__dispatchObject = notifier
@@ -63,13 +69,16 @@ public final class DispatchPromise<Value> {
         }
 
         override func notify(on queue: DispatchQueue, _ it: @escaping (T) -> Void) {
-            guard state != .invalidated else { return }
-
-            notifier.notify(queue: queue, execute: {
-                if self.state == .fired {
-                    it(self.result!)
-                }
-            })
+            switch state {
+            case .pending:
+                notifier.notify(queue: queue, execute: {
+                    if self.state == .fired {
+                        it(self._result)
+                    }
+                })
+            case .fired: queue.async { it(self._result) }
+            case .invalidated: break
+            }
         }
 
         func invalidate() {
@@ -80,24 +89,17 @@ public final class DispatchPromise<Value> {
         }
 
         deinit {
-//            if state == .fired {
-//                onFire?()
-//            }
+            invalidate()
         }
     }
     final class Resolved<T>: _Commit<T> {
         var _result: T
-        let workItem: DispatchWorkItem
 
         override var result: T? { return _result }
         override var isFired: Bool { return true }
         override var isInvalidated: Bool { return false }
 
         init(_ value: T) {
-            let noWork = DispatchWorkItem {}
-            noWork.perform()
-
-            self.workItem = noWork
             self._result = value
             super.init()
             #if TESTING
@@ -107,7 +109,7 @@ public final class DispatchPromise<Value> {
 
         override func notify(on queue: DispatchQueue, _ it: @escaping (T) -> Void) {
             let r = _result
-            workItem.notify(queue: queue) { it(r) }
+            queue.async { it(r) }
         }
     }
     final class Empty<T>: _Commit<T> {
@@ -278,7 +280,7 @@ public extension DispatchPromise {
         self.do(on: queue) { v in
             do {
                 let p = try it(v)
-                p.do(on: queue) { promise.fulfill($0) }
+                p.do(on: queue, promise.fulfill)
                 p.catch(on: queue, make: promise.fail.fire)
             } catch let e {
                 promise.reject(e)
@@ -296,18 +298,19 @@ public extension DispatchPromise {
         return promise
     }
 
-    @discardableResult
-    func `catch`<Resolved>(on queue: DispatchQueue = .main, make it: @escaping (Error) throws -> Resolved) -> DispatchPromise<Resolved> {
-        let promise = DispatchPromise<Resolved>()
-        self.resolve(on: queue, {
-            do {
-                promise.fulfill(try it($0))
-            } catch let e {
-                promise.reject(e)
-            }
-        })
-        return promise
-    }
+    /// `testPromiseNoFulfillAfterReject` failed because called this method
+//    @discardableResult
+//    func `catch`<Resolved>(on queue: DispatchQueue = .main, make it: @escaping (Error) throws -> Resolved) -> DispatchPromise<Resolved> {
+//        let promise = DispatchPromise<Resolved>()
+//        self.resolve(on: queue, {
+//            do {
+//                promise.fulfill(try it($0))
+//            } catch let e {
+//                promise.reject(e)
+//            }
+//        })
+//        return promise
+//    }
 
     @discardableResult
     func `catch`<Resolved>(on queue: DispatchQueue = .main, make it: @escaping (Error) throws -> DispatchPromise<Resolved>) -> DispatchPromise<Resolved> {

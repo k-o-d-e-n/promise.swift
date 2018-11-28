@@ -281,8 +281,9 @@ extension PerfomanceTests {
         // Act.
         DispatchQueue.main.async {
             let time = dispatch_benchmark(Constants.iterationCount) {
-                DispatchPromise<Bool>(true).then(on: queue) { _ in
-                    }.then(on: queue) { _ in
+                DispatchPromise<Bool>(true)
+                    .then(on: queue) { _ in }
+                    .then(on: queue) { _ in
                         semaphore.signal()
                         expectation.fulfill()
                 }
@@ -292,7 +293,9 @@ extension PerfomanceTests {
         }
 
         // Assert.
-        waitForExpectations(timeout: 10)
+        waitForExpectations(timeout: 10) { (err) in
+            err.map({ XCTFail($0.localizedDescription) })
+        }
     }
 
     /// Measures the average time needed to create a resolved `Promise`, chain three `then` blocks on
