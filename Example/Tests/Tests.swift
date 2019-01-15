@@ -972,7 +972,7 @@ class PromiseCatchTests: XCTestCase {
             throw error
             }.then { _ in
                 XCTFail()
-            }.catch { error in
+            }.catch { error -> Void in
                 XCTAssertTrue((error as? Test.Error) == Test.Error.code42)
             }.then {
                 XCTFail()

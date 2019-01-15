@@ -21,6 +21,7 @@ class _Commit<T> {
     var isInvalidated: Bool { return true }
     func fire(_ value: T) {}
     func notify(on queue: DispatchQueue, _ it: @escaping (T) -> Void) {}
+    func invalidate() {}
 
     #if TESTING
     weak var __dispatchObject: AnyObject? = nil
@@ -81,7 +82,7 @@ public final class DispatchPromise<Value> {
             }
         }
 
-        func invalidate() {
+        override func invalidate() {
             guard state == .pending else { return }
 
             self.state = .invalidated
@@ -208,6 +209,13 @@ public final class DispatchPromise<Value> {
 
     public func reject(_ error: Error) {
         fail.fire(error)
+    }
+
+    /// Breaks promise chain without error.
+    /// This is not cancels the execution that runs in previous promises.
+    public func cancel() {
+        success.invalidate()
+        fail.invalidate()
     }
 }
 
