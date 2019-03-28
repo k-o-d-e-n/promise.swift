@@ -142,7 +142,7 @@ public final class DispatchPromise<Value> {
         self.init(success, fail)
     }
 
-    public convenience init(_ work: @autoclosure () throws -> Value) {
+    public convenience init(_ work: () throws -> Value) {
         do {
             let result = try work()
             self.init(result)
@@ -151,7 +151,7 @@ public final class DispatchPromise<Value> {
         }
     }
 
-    public convenience init<V>(_ work: @autoclosure () throws -> V) where V: DispatchPromise {
+    public convenience init<V>(_ work: () throws -> V) where V: DispatchPromise {
         do {
             let result = try work()
             self.init(result.success, result.fail)

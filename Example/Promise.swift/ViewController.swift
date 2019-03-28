@@ -30,8 +30,8 @@ class ViewController: UIViewController {
                     res.append(part)
                 })
             }
-            .then { self.label.text = $0 }
-            .catch { e in print(e) }
+            .do { self.label.text = $0 }
+            .resolve { e in print(e) }
     }
 }
 
