@@ -265,7 +265,7 @@ public extension DispatchPromise {
     }
 
     @discardableResult
-    public func then<Result>(on queue: DispatchQueue = .main, make it: @escaping Then<Result>) -> DispatchPromise<Result> {
+    func then<Result>(on queue: DispatchQueue = .main, make it: @escaping Then<Result>) -> DispatchPromise<Result> {
         guard !success.isInvalidated else {
             return error.map(DispatchPromise<Result>.init) ?? .init(Empty(), fail)
         }
@@ -284,7 +284,7 @@ public extension DispatchPromise {
     }
 
     @discardableResult
-    public func then<Result>(on queue: DispatchQueue = .main, make it: @escaping Then<DispatchPromise<Result>>) -> DispatchPromise<Result> {
+    func then<Result>(on queue: DispatchQueue = .main, make it: @escaping Then<DispatchPromise<Result>>) -> DispatchPromise<Result> {
         guard !success.isInvalidated else {
             return error.map(DispatchPromise<Result>.init) ?? .init(Empty(), fail)
         }
@@ -304,7 +304,7 @@ public extension DispatchPromise {
     }
 
     @discardableResult
-    public func then<Result>(on queue: DispatchQueue = .main, make it: @escaping (Value, DispatchPromise<Result>) throws -> Void) -> DispatchPromise<Result> {
+    func then<Result>(on queue: DispatchQueue = .main, make it: @escaping (Value, DispatchPromise<Result>) throws -> Void) -> DispatchPromise<Result> {
         guard !success.isInvalidated else {
             return error.map(DispatchPromise<Result>.init) ?? .init(Empty(), fail)
         }
