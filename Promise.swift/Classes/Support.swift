@@ -33,3 +33,12 @@ public extension URLSession {
         return (promise, task)
     }
 }
+
+public extension URLSession {
+    func image(by url: URL) -> (promise: DispatchPromise<UIImage?>, task: URLSessionDataTask) {
+        let (promise, task) = response(by: url)
+        return (promise.then { (data, response) -> UIImage? in
+            return data.flatMap(UIImage.init)
+        }, task)
+    }
+}

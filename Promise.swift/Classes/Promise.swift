@@ -217,6 +217,11 @@ public final class DispatchPromise<Value> {
         success.invalidate()
         fail.invalidate()
     }
+
+    public func bind(to other: DispatchPromise) {
+        self.do(other.fulfill)
+        self.resolve(other.reject)
+    }
 }
 
 // TODO: Check on correct behavior with queue for `catch`
@@ -289,7 +294,25 @@ public extension DispatchPromise {
             do {
                 let p = try it(v)
                 p.do(on: queue, promise.fulfill)
-                p.catch(on: queue, make: promise.fail.fire)
+                p.resolve(on: queue, promise.fail.fire)
+            } catch let e {
+                promise.reject(e)
+            }
+        }
+        self.resolve(on: queue, promise.fail.fire)
+        return promise
+    }
+
+    @discardableResult
+    public func then<Result>(on queue: DispatchQueue = .main, make it: @escaping (Value, DispatchPromise<Result>) throws -> Void) -> DispatchPromise<Result> {
+        guard !success.isInvalidated else {
+            return error.map(DispatchPromise<Result>.init) ?? .init(Empty(), fail)
+        }
+
+        let promise = DispatchPromise<Result>()
+        self.do(on: queue) { v in
+            do {
+                try it(v, promise)
             } catch let e {
                 promise.reject(e)
             }
@@ -327,7 +350,7 @@ public extension DispatchPromise {
             do {
                 let p = try it(e)
                 p.do(on: queue) { promise.fulfill($0) }
-                p.catch(on: queue, make: promise.fail.fire)
+                p.resolve(on: queue, promise.fail.fire)
             } catch let e {
                 promise.reject(e)
             }
@@ -410,6 +433,13 @@ extension DispatchPromise {
         }
 
         return promise!
+    }
+
+    public func attach<V2>(on queue: DispatchQueue = .main, _ second: DispatchPromise<V2>) -> DispatchPromise<(Value, V2)> {
+        return DispatchPromise.tuple(on: queue, self, second)
+    }
+    public func attach<V2, V3>(on queue: DispatchQueue = .main, _ second: DispatchPromise<V2>, third: DispatchPromise<V3>) -> DispatchPromise<(Value, V2, V3)> {
+        return DispatchPromise.tuple(on: queue, self, second, third)
     }
 }
 
