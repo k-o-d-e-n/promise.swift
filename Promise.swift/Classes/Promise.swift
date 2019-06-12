@@ -321,6 +321,7 @@ public extension DispatchPromise {
         return promise
     }
 
+    @available(*, deprecated, message: "Use `resolve(_:)` instead")
     @discardableResult
     func `catch`(on queue: DispatchQueue = .main, make it: @escaping (Error) -> Void) -> DispatchPromise {
         let promise = DispatchPromise()

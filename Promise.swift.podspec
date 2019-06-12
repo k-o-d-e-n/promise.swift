@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'Promise.swift'
-  s.version          = '0.5.0'
+  s.version          = '0.6'
   s.summary          = 'Promise.swift is fun project of next implementation promises.'
 
 # This description is used to generate tags and improve search results.
