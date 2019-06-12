@@ -30,7 +30,7 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '8.0'
 
-  s.source_files = 'Promise.swift/Classes/**/*'
+  s.source_files = 'Sources/'
   
   # s.resource_bundles = {
   #   'Promise.swift' => ['Promise.swift/Assets/*.png']

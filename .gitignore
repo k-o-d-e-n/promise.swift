@@ -38,3 +38,4 @@ Carthage/Build
 Podfile.lock
 Example/Pods
 Example/Promise.swift.xcworkspace
+.build
