@@ -55,6 +55,7 @@
 		A4383F8A20651DE900795B34 /* DispatchBenchmark.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DispatchBenchmark.h; sourceTree = "<group>"; };
 		A4383F8B20651E1500795B34 /* Promise_swift_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Promise_swift_Example-Bridging-Header.h"; sourceTree = "<group>"; };
 		A4383F8C20651E1600795B34 /* DispatchBenchmark.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DispatchBenchmark.m; sourceTree = "<group>"; };
+		A4E1167723476CBC00C31467 /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Package.swift; path = ../Package.swift; sourceTree = "<group>"; };
 		BD39AA306D21D5391B1B9753 /* Pods-Promise.swift_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Promise.swift_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Promise.swift_Tests/Pods-Promise.swift_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		BF77DC5111406550AA052E3F /* Pods_Promise_swift_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Promise_swift_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D517BCF7339C13F3197B0008 /* Pods_Promise_swift_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Promise_swift_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -84,6 +85,7 @@
 		607FACC71AFB9204008FA782 = {
 			isa = PBXGroup;
 			children = (
+				A4E1167723476CBC00C31467 /* Package.swift */,
 				607FACF51AFB993E008FA782 /* Podspec Metadata */,
 				607FACD21AFB9204008FA782 /* Example for Promise.swift */,
 				607FACE81AFB9204008FA782 /* Tests */,
@@ -192,8 +194,7 @@
 				607FACCC1AFB9204008FA782 /* Sources */,
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
-				C723EE16C21A41E8928CF076 /* [CP] Embed Pods Frameworks */,
-				B7F3F9361366369BA751AC8E /* [CP] Copy Pods Resources */,
+				0DEF320FFCE71B908E9CC67C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -213,7 +214,6 @@
 				607FACE21AFB9204008FA782 /* Frameworks */,
 				607FACE31AFB9204008FA782 /* Resources */,
 				34460F1B850BC5B883C0C7CB /* [CP] Embed Pods Frameworks */,
-				9B053C8AEE9B05349EE6F544 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -289,6 +289,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		0DEF320FFCE71B908E9CC67C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Promise_swift_Example/Pods-Promise_swift_Example-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Promise.swift/Promise_swift.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Promise_swift.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Promise_swift_Example/Pods-Promise_swift_Example-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		25D1EF016F0F93691CEF9A95 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -313,7 +331,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Promise_swift_Tests/Pods-Promise_swift_Tests-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Promise_swift_Tests/Pods-Promise_swift_Tests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework",
 				"${BUILT_PRODUCTS_DIR}/PromisesSwift/Promises.framework",
 			);
@@ -324,55 +342,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Promise_swift_Tests/Pods-Promise_swift_Tests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		9B053C8AEE9B05349EE6F544 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Promise_swift_Tests/Pods-Promise_swift_Tests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		B7F3F9361366369BA751AC8E /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Promise_swift_Example/Pods-Promise_swift_Example-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		C723EE16C21A41E8928CF076 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Promise_swift_Example/Pods-Promise_swift_Example-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Promise.swift/Promise_swift.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Promise_swift.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Promise_swift_Example/Pods-Promise_swift_Example-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Promise_swift_Tests/Pods-Promise_swift_Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		CDBFD9174EADCDBA4CE70F7F /* [CP] Check Pods Manifest.lock */ = {

@@ -35,6 +35,8 @@ public extension URLSession {
 }
 
 #if os(iOS)
+import UIKit
+
 public extension URLSession {
     func image(by url: URL) -> (promise: DispatchPromise<UIImage?>, task: URLSessionDataTask) {
         let (promise, task) = response(by: url)
