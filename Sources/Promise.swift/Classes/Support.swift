@@ -5,6 +5,7 @@
 //  Created by Denis Koryttsev on 02/04/2018.
 //
 
+#if os(iOS) || os(tvOS) || os(macOS)
 import Foundation
 
 public extension URLSession {
@@ -33,6 +34,7 @@ public extension URLSession {
         return (promise, task)
     }
 }
+#endif
 
 #if os(iOS)
 import UIKit
