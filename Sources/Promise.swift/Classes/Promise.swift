@@ -222,6 +222,16 @@ public final class DispatchPromise<Value> {
         self.do(other.fulfill)
         self.resolve(other.reject)
     }
+
+    public func bind<U>(to other: DispatchPromise) where Value == Optional<U> {
+        self.do(other.fulfill)
+        self.resolve(other.reject)
+    }
+}
+extension DispatchPromise where Value == Void {
+    public func fulfill() {
+        self.fulfill(())
+    }
 }
 
 // TODO: Check on correct behavior with queue for `catch`
